@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-management-frontend-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: transaction-management-frontend
+  template:
+    metadata:
+      labels:
+        app: transaction-management-frontend
+    spec:
+      containers:
+      - name: transaction-management-frontend-container
+        image: transaction_management_frontend:latest
+        ports:
+        - containerPort: 3000
