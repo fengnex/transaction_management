@@ -9,7 +9,7 @@ public interface TransactionService {
 
     Transaction updateTransaction(Long id, Transaction transaction);
 
-    boolean deleteTransaction(Long id);
+    void deleteTransaction(Long id);
 
     Transaction getTransaction(Long id);
 

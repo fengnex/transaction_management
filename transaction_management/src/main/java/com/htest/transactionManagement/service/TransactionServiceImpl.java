@@ -110,7 +110,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @CacheEvict(value = "transactions", key = "#id")
-    public boolean deleteTransaction(Long id) {
+    public void deleteTransaction(Long id) {
         if (!transactionStore.containsKey(id)) {
             throw new TransactionNotFoundException("Transaction not found with ID: " + id);
         }
@@ -121,8 +121,8 @@ public class TransactionServiceImpl implements TransactionService {
             transactionHashIndex.remove(hash);
         }
 
+        transactionStore.remove(id);
         log.info("Deleted transaction with ID: {}", id);
-        return null != transactionStore.remove(id);
     }
 
     @Override
