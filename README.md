@@ -31,18 +31,25 @@ cd transaction-management
 
 2. Build the project:
 
-```bash
+```plainText
 mvn clean package -Dmaven.test.skip=true
 ```
 
 3. Run the application:
-```bash
+
+```plainText
 mvn spring-boot:run
 or
 java -jar target/transaction-management-0.0.1-SNAPSHOT.jar
 ```  
 
-4. The backend will be running on ```http://localhost:8080```.
+4. Run unit test
+
+```plainText
+mvn test
+```
+
+5. The backend will be running on ```http://localhost:8080```.
 
 ### API Documentation
 
