@@ -33,7 +33,7 @@ cd transaction-management
 
 ```bash
 mvn clean package -Dmaven.test.skip=true
-···
+```
 
 3. Run the application:
 ```bash
@@ -42,7 +42,7 @@ or
 java -jar target/transaction-management-0.0.1-SNAPSHOT.jar
 ```  
 
-1. The backend will be running on `http://localhost:8080`.
+4. The backend will be running on ```http://localhost:8080```.
 
 ### API Documentation
 
@@ -75,7 +75,7 @@ npm install
 npm start
 ```
 
-4. The frontend will be running on `http://localhost:3000`.
+4. The frontend will be running on ```http://localhost:3000```.	
 
 
 ## Features
