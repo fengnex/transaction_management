@@ -3,23 +3,29 @@ version: '3.9'
 services:
   backend:
     build:
-      context: ./TransactionManagement
+      context: ./transaction_management
     ports:
-      - "8080:8080" # Maps container port 8080 to host port 8080
+      - "8080:8080"
     networks:
       - app-network
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   frontend:
     build:
-      context: ./transaction-management
+      context: ./transaction_web
     ports:
-      - "3000:80" # Maps container port 80 (nginx) to host port 3000
+      - "3000:3000"
     networks:
       - app-network
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 networks:
   app-network:
