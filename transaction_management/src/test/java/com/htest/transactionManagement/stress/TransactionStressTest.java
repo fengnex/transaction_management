@@ -1,6 +1,9 @@
 package com.htest.transactionManagement.stress;
 
 import com.htest.transactionManagement.model.*;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +23,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SpringBootTest
 public class TransactionStressTest {
-    private final RestTemplate restTemplate;
-    private final String baseUrl;
 
-    public TransactionStressTest(RestTemplate restTemplate, String baseUrl) {
-        this.restTemplate = restTemplate;
-        this.baseUrl = baseUrl;
-    }
+    @Autowired
+    private RestTemplate restTemplate;
+
+    private final String baseUrl = "http://localhost:8080";
 
     private static Transaction generateTransaction() {
         Transaction transaction = new Transaction();
@@ -46,7 +48,6 @@ public class TransactionStressTest {
 
     public void stressTest(int numberOfRequests, int durationInSeconds) throws InterruptedException {
         ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
-        // 使用 CopyOnWriteArrayList 替代 ArrayList
         List<Long> latencies = new CopyOnWriteArrayList<>();
         AtomicInteger errorCount = new AtomicInteger(0);
         AtomicInteger okCount = new AtomicInteger(0);
@@ -70,7 +71,7 @@ public class TransactionStressTest {
                             okCount.incrementAndGet();
                         }
 
-                        for (int j = 0; j < 40; j++) {
+                        for (int j = 0; j < 100; j++) {
                             ResponseEntity<Transaction> getResponse = restTemplate.getForEntity(baseUrl + "/api/v1/transactions/" + transactionId, Transaction.class);
                             if (!getResponse.getStatusCode().is2xxSuccessful()) {
                                 errorCount.incrementAndGet();
@@ -100,7 +101,7 @@ public class TransactionStressTest {
         printMetrics(copiedLatencies, errorCount.get(), okCount.get(), startTime, endTime);
     }
 
-    private void printMetrics(List<Long> latencies, int errorCount,int totalCount, long startTime, long endTime) {
+    private void printMetrics(List<Long> latencies, int errorCount, int totalCount, long startTime, long endTime) {
         long totalRequests = totalCount + errorCount;
         double throughput = totalRequests / ((endTime - startTime) / 1000.0);
 
@@ -113,18 +114,16 @@ public class TransactionStressTest {
         double errorRate = (double) errorCount / totalRequests * 100;
 
         System.out.println("Total Requests: " + totalRequests);
-        System.out.println("Throughput: " + (int)throughput + " requests/sec");
+        System.out.println("Throughput: " + (int) throughput + " requests/sec");
         System.out.println("Average Latency: " + Math.round(avgLatency * 100) / 100.0 + " ms");
         System.out.println("Max Latency: " + maxLatency + " ms");
         System.out.println("Error Count: " + errorCount);
-        System.out.println("Error Rate: " +  Math.round(errorRate * 100) / 100.0 + "%");
-        System.out.println("90th Percentile Latency: " + tp90Latency/1000f + " ms");
+        System.out.println("Error Rate: " + Math.round(errorRate * 100) / 100.0 + "%");
+        System.out.println("90th Percentile Latency: " + tp90Latency / 1000f + " ms");
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        RestTemplate restTemplate = new RestTemplate();
-        String baseUrl = "http://localhost:8080";
-        TransactionStressTest stressTest = new TransactionStressTest(restTemplate, baseUrl);
-        stressTest.stressTest(1000000, 30);
+    @Test
+    public void testStressTest() throws InterruptedException {
+        stressTest(1000000, 30);
     }
 }
