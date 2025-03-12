@@ -91,7 +91,6 @@ public class VirtualThreadStressTest {
                     .header("Content-Type", "application/json")
                     .build();
             HttpResponse<String> send = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(send.body());
             return send;
         });
     }
@@ -147,11 +146,13 @@ public class VirtualThreadStressTest {
         Map<String, Object> transaction = new HashMap<>();
         transaction.put("amount", random.nextDouble() * 1000);
         transaction.put("currency", "CNY");
+        transaction.put("status", "INITIATED");
         transaction.put("sourceAccountNumber", random.nextInt(1000000, 1000000000));
         transaction.put("type", types[random.nextInt(types.length)]);
         transaction.put("riskLevel", riskLevels[random.nextInt(riskLevels.length)]);
         transaction.put("category", categories[random.nextInt(categories.length)]);
-        transaction.put("description", "Test transaction " + UUID.randomUUID());
+        transaction.put("description", "Test transaction ");
+        transaction.put("remarks", "Test remarks ");
         transaction.put("timestamp", LocalDateTime.now().toString());
 
         return transaction;
