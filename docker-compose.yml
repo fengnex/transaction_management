@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./TransactionManagement
+    ports:
+      - "8080:8080" # Maps container port 8080 to host port 8080
+    networks:
+      - app-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  frontend:
+    build:
+      context: ./transaction-management
+    ports:
+      - "3000:80" # Maps container port 80 (nginx) to host port 3000
+    networks:
+      - app-network
+    depends_on:
+      - backend
+
+networks:
+  app-network:
+    driver: bridge
