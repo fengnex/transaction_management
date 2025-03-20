@@ -1,5 +1,6 @@
 package com.htest.transactionManagement.controller;
 
+import com.htest.transactionManagement.exception.TransactionNotFoundException;
 import com.htest.transactionManagement.model.Transaction;
 import com.htest.transactionManagement.service.TransactionService;
 import com.htest.transactionManagement.validator.TransactionValidator;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -46,14 +48,22 @@ public class TransactionController {
     }
 
     @PutMapping("/{id}")
-    public Mono<Transaction> updateTransaction(
+    public Mono<ResponseEntity<?>> updateTransaction(
             @PathVariable Long id,
             @Valid @RequestBody Transaction transaction) {
-        Mono<Transaction> errors1 = getTransactionMono(transaction);
-        if (errors1 != null) return errors1;
-
-        return Mono.just(transaction)
-                .map(t -> transactionService.updateTransaction(id, t));
+        return getTransactionMono(transaction)
+                .flatMap(validTransaction -> {
+                    // Proceed with the update if there are no validation errors
+                    return Mono.defer(() -> {
+                        try {
+                            return Mono.just(ResponseEntity.ok(transactionService.updateTransaction(id, validTransaction)));
+                        } catch (TransactionNotFoundException ex) {
+                            return Mono.just(ResponseEntity.notFound().build());
+                        }
+                    });
+                })
+                .onErrorResume(ResponseStatusException.class, ex -> Mono.just(ResponseEntity.badRequest().body(ex.getReason())))
+                .switchIfEmpty(Mono.just(ResponseEntity.badRequest().build())); // Handle empty case
     }
 
     private Mono<Transaction> getTransactionMono(@RequestBody @Valid Transaction transaction) {
@@ -69,7 +79,7 @@ public class TransactionController {
                             .orElse("Validation failed")
             ));
         }
-        return null;
+        return Mono.just(transaction);
     }
 
     @DeleteMapping("/{id}")
