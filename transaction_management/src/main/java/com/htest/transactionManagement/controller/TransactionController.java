@@ -62,8 +62,7 @@ public class TransactionController {
                         }
                     });
                 })
-                .onErrorResume(ResponseStatusException.class, ex -> Mono.just(ResponseEntity.badRequest().body(ex.getReason())))
-                .switchIfEmpty(Mono.just(ResponseEntity.badRequest().build())); // Handle empty case
+                .onErrorResume(ResponseStatusException.class, ex -> Mono.just(ResponseEntity.badRequest().body(ex.getReason())));
     }
 
     private Mono<Transaction> getTransactionMono(@RequestBody @Valid Transaction transaction) {
